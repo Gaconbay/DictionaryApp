@@ -22,13 +22,12 @@ struct ContentView: View {
                     Text(definition)
                 }
             }
-            .navigationTitle("Dictionary")
+            .navigationTitle("Dictionary App")
         }
     }
 
     func fetchDefinitions() {
-        guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(searchText)") else { return }
-        
+        guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(searchText)") else { return } 
 
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else { return }

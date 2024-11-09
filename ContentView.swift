@@ -4,51 +4,66 @@
 //
 //  Created by Ty Tran on 11/2/24.
 //
-
 import SwiftUI
 
 struct ContentView: View {
     @State private var searchText = ""
     @State private var definitions: [String] = []
+    @ObservedObject private var searchHistory = SearchHistory()
+    @State private var showSearchHistory = false
+    @State private var showFavoriteWords = false // Declare and initialize showFavoriteWords
+    @ObservedObject private var favoriteWordsManager = FavoriteWordsManager()
 
     var body: some View {
         NavigationView {
             VStack {
                 TextField("English Dictionary", text: $searchText, onCommit: fetchDefinitions)
-                /**onCommit or onSubmit{}**/
                     .padding()
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                 List(definitions, id: \.self) { definition in
                     Text(definition)
                 }
+                Button("History",systemImage: "clock") {
+                    showSearchHistory.toggle()
+                }
+                .buttonBorderShape(.roundedRectangle)
+                .buttonStyle(.borderedProminent)
+                .tint(.primary)
+                
+                Button("Favorites", systemImage: "star.fill"){
+                    showFavoriteWords.toggle()
+                }
+                .buttonBorderShape(.roundedRectangle)
+                .buttonStyle(.borderedProminent)
+                .tint(.primary)
+                
+                Button("Add to Favorites", systemImage: "star"){
+                    favoriteWordsManager.addToFavorites(searchText)
+                }
+                .buttonBorderShape(.roundedRectangle)
+                .buttonStyle(.borderedProminent)
+                .tint(.primary)
+            
             }
-            .navigationTitle("Dictionary App")
+            .navigationTitle("Dictionary")
+            .sheet(isPresented: $showSearchHistory) {
+                SearchHistoryView(searchHistory: searchHistory)
+            }
+            .sheet(isPresented: $showFavoriteWords) {
+                FavoriteWordsView(favoriteWords: $favoriteWordsManager.favoriteWords)
+            }
         }
     }
 
     func fetchDefinitions() {
-        guard let url = URL(string: "https://api.dictionaryapi.dev/api/v2/entries/en/\(searchText)") else { return } 
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let json = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
-                if let meanings = json?.first?["meanings"] as? [[String: Any]] {
-                    self.definitions = meanings.flatMap { ($0["definitions"] as? [[String: Any]])! }
-                        .compactMap { $0["definition"] as? String }
-                    DispatchQueue.main.async {
-                        // Update UI on the main thread
-                    }
-                }
-            } catch {
-                print("Failed to decode JSON: \(error)")
+        DictionaryAPI.fetchDefinitions(searchText: searchText) { definitions in
+            DispatchQueue.main.async {
+                self.definitions = definitions
+                self.searchHistory.addSearchTerm(self.searchText)
             }
-        }.resume()
+        }
     }
-
-
 }
-
 
 #Preview{
     ContentView()

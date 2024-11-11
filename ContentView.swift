@@ -49,7 +49,7 @@ struct ContentView: View {
         
         
         HStack {
-            Button("History", systemImage: "clock") {
+            Button("History", systemImage: "clock.fill") {
                 showSearchHistory.toggle()
             }
             .buttonBorderShape(.roundedRectangle)
@@ -71,6 +71,17 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showFavoriteWords) {
             FavoriteWordsView()
+        }
+        TabView {
+            Tab("Search", systemImage: "magnifyingglass"){
+            
+            }
+            Tab("History", systemImage: "clock.fill"){
+              
+            }
+            Tab("Favorites", systemImage: "star.fill") {
+                
+            }
         }
     }
     

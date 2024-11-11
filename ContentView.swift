@@ -27,20 +27,26 @@ struct ContentView: View {
         
         VStack {
             TextField("English Dictionary", text: $searchText, onCommit: fetchDefinitions)
-                .padding()
                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+        }
             
+        HStack {
             Button("Add to Favorites", systemImage: "star") {
                 addToFavorites()
             }
+            .disabled(searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .buttonBorderShape(.roundedRectangle)
             .buttonStyle(.borderedProminent)
-            .tint(.primary)
+            .tint(.primary)   
+            .padding(.horizontal, 15)
+            Spacer()
+        }
             
             List(definitions, id: \.self) { definition in
                 Text(definition)
             }
-        }
+        
         
         HStack {
             Button("History", systemImage: "clock") {
@@ -69,7 +75,7 @@ struct ContentView: View {
     }
     
     func addToFavorites() {
-        if !favoriteWords.contains(where: { $0.word == searchText }) {
+        if !favoriteWords.contains(where: { $0.word == searchText }) || favoriteWords.isEmpty {
             let newFavorite = FavoriteWord(word: searchText)
             modelContext.insert(newFavorite)
         }

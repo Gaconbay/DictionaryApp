@@ -4,8 +4,8 @@
 //
 //  Created by Ty Tran on 11/2/24.
 //
-
 import SwiftUI
+import SwiftData
 
 @main
 struct DictionaryAppApp: App {
@@ -13,5 +13,6 @@ struct DictionaryAppApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: FavoriteWord.self)
     }
 }

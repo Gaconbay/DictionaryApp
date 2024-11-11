@@ -5,56 +5,76 @@
 //  Created by Ty Tran on 11/2/24.
 //
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     @State private var searchText = ""
     @State private var definitions: [String] = []
     @ObservedObject private var searchHistory = SearchHistory()
     @State private var showSearchHistory = false
-    @State private var showFavoriteWords = false // Declare and initialize showFavoriteWords
-    @ObservedObject private var favoriteWordsManager = FavoriteWordsManager()
-
+    @State private var showFavoriteWords = false
+    @Environment(\.modelContext) private var modelContext
+    @Query private var favoriteWords: [FavoriteWord]
+    
     var body: some View {
-        NavigationView {
-            VStack {
-                TextField("English Dictionary", text: $searchText, onCommit: fetchDefinitions)
-                    .padding()
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                List(definitions, id: \.self) { definition in
-                    Text(definition)
-                }
-                Button("History",systemImage: "clock") {
-                    showSearchHistory.toggle()
-                }
-                .buttonBorderShape(.roundedRectangle)
-                .buttonStyle(.borderedProminent)
-                .tint(.primary)
-                
-                Button("Favorites", systemImage: "star.fill"){
-                    showFavoriteWords.toggle()
-                }
-                .buttonBorderShape(.roundedRectangle)
-                .buttonStyle(.borderedProminent)
-                .tint(.primary)
-                
-                Button("Add to Favorites", systemImage: "star"){
-                    favoriteWordsManager.addToFavorites(searchText)
-                }
-                .buttonBorderShape(.roundedRectangle)
-                .buttonStyle(.borderedProminent)
-                .tint(.primary)
+        HStack (){
+            Text("Dictionary")
+                .font(.largeTitle)
+                .bold()
+            Spacer()
+        }
+        .padding()
+        
+        VStack {
+            TextField("English Dictionary", text: $searchText, onCommit: fetchDefinitions)
+                .padding()
+                .textFieldStyle(RoundedBorderTextFieldStyle())
             
+            Button("Add to Favorites", systemImage: "star") {
+                addToFavorites()
             }
-            .navigationTitle("Dictionary")
-            .sheet(isPresented: $showSearchHistory) {
-                SearchHistoryView(searchHistory: searchHistory)
-            }
-            .sheet(isPresented: $showFavoriteWords) {
-                FavoriteWordsView(favoriteWords: $favoriteWordsManager.favoriteWords)
+            .buttonBorderShape(.roundedRectangle)
+            .buttonStyle(.borderedProminent)
+            .tint(.primary)
+            
+            List(definitions, id: \.self) { definition in
+                Text(definition)
             }
         }
+        
+        HStack {
+            Button("History", systemImage: "clock") {
+                showSearchHistory.toggle()
+            }
+            .buttonBorderShape(.roundedRectangle)
+            .buttonStyle(.borderedProminent)
+            .tint(.primary)
+            
+            Button("Favorites", systemImage: "star.fill") {
+                showFavoriteWords.toggle()
+            }
+            .buttonBorderShape(.roundedRectangle)
+            .buttonStyle(.borderedProminent)
+            .tint(.primary)
+        }
+        .navigationTitle("Dictionary")
+        .opacity(showSearchHistory || showFavoriteWords ? 0.1 : 1)
+        
+        .sheet(isPresented: $showSearchHistory) {
+            SearchHistoryView(searchHistory: searchHistory)
+        }
+        .sheet(isPresented: $showFavoriteWords) {
+            FavoriteWordsView()
+        }
     }
-
+    
+    func addToFavorites() {
+        if !favoriteWords.contains(where: { $0.word == searchText }) {
+            let newFavorite = FavoriteWord(word: searchText)
+            modelContext.insert(newFavorite)
+        }
+    }
+    
     func fetchDefinitions() {
         DictionaryAPI.fetchDefinitions(searchText: searchText) { definitions in
             DispatchQueue.main.async {
@@ -65,6 +85,7 @@ struct ContentView: View {
     }
 }
 
-#Preview{
+#Preview {
     ContentView()
+        .modelContainer(for: FavoriteWord.self, inMemory: true)
 }

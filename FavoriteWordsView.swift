@@ -5,22 +5,32 @@
 //  Created by Ty Tran on 11/7/24.
 //
 import SwiftUI
+import SwiftData
 
 struct FavoriteWordsView: View {
-    @Binding var favoriteWords: [String]
-
+    @Environment(\.modelContext) private var modelContext
+    @Query private var favoriteWords: [FavoriteWord]
+    
     var body: some View {
         NavigationView {
-            List(favoriteWords, id: \.self) { word in
-                Text(word)
+            List {
+                ForEach(favoriteWords) { favoriteWord in
+                    Text(favoriteWord.word)
+                }
+                .onDelete(perform: deleteFavorites)
             }
             .navigationTitle("Favorite Words")
         }
     }
+    
+    private func deleteFavorites(at offsets: IndexSet) {
+        for index in offsets {
+            modelContext.delete(favoriteWords[index])
+        }
+    }
 }
 
-struct FavoriteWordsView_Previews: PreviewProvider {
-    static var previews: some View {
-        FavoriteWordsView(favoriteWords: .constant(["apple", "banana", "cherry"]))
-    }
+#Preview {
+    FavoriteWordsView()
+        .modelContainer(for: FavoriteWord.self, inMemory: true)
 }

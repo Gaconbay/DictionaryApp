@@ -24,13 +24,15 @@ struct ContentView: View {
             Spacer()
         }
         .padding()
+        .border(.red, width: 5)
         
         VStack {
             TextField("English Dictionary", text: $searchText, onCommit: fetchDefinitions)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal)
         }
-            
+        .border(.red, width: 5)
+        
         HStack {
             Button("Add to Favorites", systemImage: "star") {
                 addToFavorites()
@@ -38,14 +40,16 @@ struct ContentView: View {
             .disabled(searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .buttonBorderShape(.roundedRectangle)
             .buttonStyle(.borderedProminent)
-            .tint(.primary)   
+            .tint(.primary)
             .padding(.horizontal, 15)
             Spacer()
         }
-            
-            List(definitions, id: \.self) { definition in
-                Text(definition)
-            }
+        .border(.red, width: 5)
+        
+        List(definitions, id: \.self) { definition in
+            Text(definition)
+        }
+        .border(.red, width: 5)
         
         
         HStack {
@@ -63,7 +67,7 @@ struct ContentView: View {
             .buttonStyle(.borderedProminent)
             .tint(.primary)
         }
-        .navigationTitle("Dictionary")
+        .border(.red, width: 5)
         .opacity(showSearchHistory || showFavoriteWords ? 0.1 : 1)
         
         .sheet(isPresented: $showSearchHistory) {
@@ -74,15 +78,16 @@ struct ContentView: View {
         }
         TabView {
             Tab("Search", systemImage: "magnifyingglass"){
-            
+                
             }
             Tab("History", systemImage: "clock.fill"){
-              
+                
             }
             Tab("Favorites", systemImage: "star.fill") {
                 
             }
         }
+        .border(.red, width: 5)
     }
     
     func addToFavorites() {

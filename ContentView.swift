@@ -77,15 +77,8 @@ struct ContentView: View {
             FavoriteWordsView()
         }
         TabView {
-            Tab("Search", systemImage: "magnifyingglass"){
-                
-            }
-            Tab("History", systemImage: "clock.fill"){
-                
-            }
-            Tab("Favorites", systemImage: "star.fill") {
-                
-            }
+            
+            
         }
         .padding(.horizontal)
         .border(.red, width: 3)
